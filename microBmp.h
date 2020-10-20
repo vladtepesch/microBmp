@@ -148,6 +148,10 @@ const uint8_t* microBmp_getNextRow(microBmp_State * io_this);
 /** returns the bitmap data of the current row from pixel [x1, x2[ into rgb and writes the data into o_targetbuf */
 void microBmp_convertRowToRGB(const microBmp_State* i_this, uint8_t* o_targetBuf, uint16_t x1, uint16_t x2);
 
+/** returns the bitmap data of the current row from pixel [x1, x2[ into 16bit RGB565 and writes the data into o_targetbuf */
+void microBmp_convertRowTo565(const microBmp_State* i_this, uint16_t* o_targetBuf, uint16_t x1, uint16_t x2);
+
+
 
 #ifdef __cplusplus
 }

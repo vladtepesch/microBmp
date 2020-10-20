@@ -234,7 +234,6 @@ static bmp_RGB microBmp_getColorAt(const microBmp_State* i_this, uint16_t x)
   return col;
 }
 
-/** returns the bitmap data of the current row from pixel [x1, x2[ into rgb and writes the data into o_targetbuf */
 void microBmp_convertRowToRGB(const microBmp_State* i_this, uint8_t* o_targetBuf, uint16_t x1, uint16_t x2) {
   while (x1 < x2) {
     bmp_RGB c = microBmp_getColorAt(i_this, x1);
@@ -242,6 +241,20 @@ void microBmp_convertRowToRGB(const microBmp_State* i_this, uint8_t* o_targetBuf
     o_targetBuf[1] = c.g;
     o_targetBuf[2] = c.b;
     o_targetBuf += 3;
+    ++x1;
+  }
+}
+
+
+void microBmp_convertRowTo565(const microBmp_State* i_this, uint16_t* o_targetBuf, uint16_t x1, uint16_t x2) {
+  /// \todo make efficient by dedicated implemtentation instead of converting to rgb and then back to 565
+  while (x1 < x2) {
+    bmp_RGB c = microBmp_getColorAt(i_this, x1);
+    *o_targetBuf =  ( ((uint16_t)c.r & 0b11111000) << 8) 
+                  | ( ((uint16_t)c.g & 0b11111100) << 3)
+                  | ( (uint16_t)c.b  >> 3 )
+      ;
+    o_targetBuf++;
     ++x1;
   }
 }
