@@ -2,19 +2,19 @@
 
 **MI**cro **C**ontroller **R**ead **O**nly **BMP** Library
 
-A minimal library designed for reading bmp files without using dynamic allocated memory.
+A minimal library designed for reading bmp files without using dynamically allocated memory.
 
-It works on a externally provided memory and uses a callback to get more image data reading
+It works on a externally provided memory and uses a callback to get more image data 
 to be independent of file systems or loaded data.
 
 ## design choices
 
  - no memory allocation
  - no os dependencies
- - the image is loaded row wise and not has to fit the memory at once
+ - the image is loaded row wise and not has to fit into memory at once
  - loading of data is handled to the user via callback
  - also supports working on fully loaded memory (without calling the user back)
- - user has to provide some memor block that serves as cache and that at least have must be 
+ - user has to provide some memory block that serves as cache and that at least have must be 
    large enough to hold one image line and the palette (if palette based)
 
 ## currently supported format features
