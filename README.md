@@ -19,7 +19,7 @@ to be independent of file systems or loaded data.
 
 ## currently supported format features
 
- - Indexed images 4bit 8bit  with arbitrary number of palette entries
+ - Indexed images 1bit, 4bit 8bit  with arbitrary number of palette entries
  - 16bit images (like RGB565 or RGB555) with or without bitmasks (compression 3)
  - 24bit RGB images (accepts compression 3 if bit pattern is the standard one)
  - 32bit RGB images (accepts compression 3 if bit pattern is the standard one)
@@ -27,7 +27,6 @@ to be independent of file systems or loaded data.
 ## currently missing features and drawbacks
  
  - no compression supported (besides compression 3 that really is not any compression but mapping of bits to color)
- - monochrome image
  - currently only supports mirrored images (bmp's default case), negative heights (top down) are (currently) not supported
  - only RGB is currently supported as output format
  - efficiency of data conversion currently not very high

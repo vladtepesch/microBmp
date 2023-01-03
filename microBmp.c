@@ -89,7 +89,12 @@ microBmpStatus microBmp_init(microBmp_State* o_this, uint8_t* io_buffer, size_t 
     return MBMP_STATUS_UNSUPPORTED_FILE_TYPE;
   }
 
-  if (    (dibHeader->bitsPerPixel == 1)
+  if (    (   (dibHeader->bitsPerPixel != 1)
+           && (dibHeader->bitsPerPixel != 4)
+           && (dibHeader->bitsPerPixel != 8)
+           && (dibHeader->bitsPerPixel != 16)
+           && (dibHeader->bitsPerPixel != 24)
+           && (dibHeader->bitsPerPixel != 32))
        || !microBmp_checkSupportedCompression(dibHeader)
        || (dibHeader->colorPlanes != 1)
      )
@@ -108,7 +113,7 @@ microBmpStatus microBmp_init(microBmp_State* o_this, uint8_t* io_buffer, size_t 
 
 
   /* Calculating file constants */
-  if (dibHeader->bitsPerPixel == 16) {
+  if (o_this->bitsPerPixel == 16) {
     if (dibHeader->compressionMethod == 3) {
       o_this->shiftR = trailingZeros(dibHeader->maskR);
       o_this->shiftG = trailingZeros(dibHeader->maskG);
@@ -127,17 +132,23 @@ microBmpStatus microBmp_init(microBmp_State* o_this, uint8_t* io_buffer, size_t 
   }
   o_this->currentRow = 0;
 
-  if (dibHeader->bitsPerPixel <= 8) {                      // palette image use part of buffer as palette buffer and rest as data cache
-    uint32_t paletteSize = dibHeader->colorsInPalette * 4;
+  if (o_this->bitsPerPixel <= 8) {                      // palette image use part of buffer as palette buffer and rest as data cache
+    uint32_t paletteOffset = sizeof(microBmp_FileHeader) + dibHeader->headerSize;
+    if (    (o_this->bitsPerPixel == 1)
+         && (o_this->colorsInPalette == 0)
+         && (imgDataOffset > paletteOffset)) { // for some strange reason color count is zero in 1 bit bmps, even if there is a palette
+      o_this->colorsInPalette = 2;
+    }
+    uint32_t paletteSize = o_this->colorsInPalette * 4;
     uint32_t reqMinBuffersize = paletteSize + o_this->bytesPerRow;
     if (reqMinBuffersize <= i_buffersize) {
       if (i_loadDataFunc) {
         o_this->palette = io_buffer;
         io_buffer     += paletteSize;
         i_buffersize -= paletteSize;
-        i_loadDataFunc(o_this->palette, paletteSize, sizeof(microBmp_FileHeader) + dibHeader->headerSize, i_userData);
+        i_loadDataFunc(o_this->palette, paletteSize, paletteOffset, i_userData);
       } else {
-        o_this->palette = io_buffer + sizeof(microBmp_FileHeader) + dibHeader->headerSize;
+        o_this->palette = io_buffer + paletteOffset;
       }
 
     } else {
@@ -212,12 +223,14 @@ static bmp_RGB microBmp_getColorAt(const microBmp_State* i_this, uint16_t x)
       }else{
         idx = idx >> 4;
       }
-    } 
+    } else if (i_this->bitsPerPixel == 1) { // multiple pixel per byte - refine index
+        idx = ((idx << (bitOff % 8)) & 0x80)?1:0;
+    }
     coldata = &i_this->palette[idx * 4];
     col.b = coldata[0];
     col.g = coldata[1];
     col.r = coldata[2];
-  } else if(i_this->bytesPerPixel ==2) {
+  } else if(i_this->bytesPerPixel == 2) {
     const uint16_t* u16Row = (const uint16_t*)i_this->rowData;
     uint16_t c16 = u16Row[x];
     col.r = stretchTo8bit((c16 >> i_this->shiftR)& i_this->maskR, i_this->maskR);
