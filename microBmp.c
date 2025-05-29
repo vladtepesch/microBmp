@@ -26,7 +26,7 @@ inline static uint8_t popcount(uint32_t v)
 {
   v = v - ((v >> 1) & 0x55555555);                    // reuse input as temporary
   v = (v & 0x33333333) + ((v >> 2) & 0x33333333);     // temp
-  return  ((v + (v >> 4) & 0xF0F0F0F) * 0x1010101) >> 24; // count
+  return  (((v + (v >> 4)) & 0xF0F0F0F) * 0x1010101) >> 24; // count
 }
 
 
@@ -48,7 +48,7 @@ inline static uint8_t stretchTo8bit(uint8_t v, uint8_t mask)
   }
   return v;
 }
-inline size_t calc_row_size(const microBmp_BmpInfo * dibHeader) {
+static inline size_t calc_row_size(const microBmp_BmpInfo * dibHeader) {
   /* Weird formula because BMP row sizes are padded up to a multiple of 4 bytes. */
   return (((dibHeader->bitsPerPixel * dibHeader->imageWidth) + 31) / 32) * 4;
 }
@@ -263,8 +263,8 @@ void microBmp_convertRowTo565(const microBmp_State* i_this, uint16_t* o_targetBu
   /// \todo make efficient by dedicated implemtentation instead of converting to rgb and then back to 565
   while (x1 < x2) {
     bmp_RGB c = microBmp_getColorAt(i_this, x1);
-    *o_targetBuf =  ( ((uint16_t)c.r & 0b11111000) << 8) 
-                  | ( ((uint16_t)c.g & 0b11111100) << 3)
+    *o_targetBuf =  ( ((uint16_t)c.r & 0xF8) << 8) 
+                  | ( ((uint16_t)c.g & 0xFC) << 3)
                   | ( (uint16_t)c.b  >> 3 )
       ;
     o_targetBuf++;

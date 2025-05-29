@@ -1,0 +1,25 @@
+{
+  "name": "microBmp",
+  "version": "0.1.0",
+  "description": "a minimal bmp decoding library withou dynamic memory",
+  "keywords": "fonts, pixelfont",
+  "authors":
+  [
+    {
+      "name": "Vlad Tepesch"
+    }
+  ],
+  "build":{
+    "srcDir":".",
+    "includeDir":".",
+    "flags":[
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror"
+    ]
+  },
+  "license": "BSD 2-Clause License",
+  "frameworks": "*",
+  "platforms": "*"
+}
